@@ -1,25 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 module FirstApp.Main (runApp) where
 
+import qualified Data.ByteString.Lazy as LBS
+import           Data.Either (either)
+import           Data.Text (Text)
+import           Data.Text.Encoding (decodeUtf8)
+import           FirstApp.Types           (ContentType , Error, RqType (..),
+                                           mkCommentText, mkTopic,
+                                           renderContentType)
+import           Network.HTTP.Types       (Status, hContentType, status200,
+                                           status400, status404)
 import           Network.Wai              (Application, Request, Response,
                                            pathInfo, requestMethod, responseLBS,
                                            strictRequestBody)
 import           Network.Wai.Handler.Warp (run)
-
-import           Network.HTTP.Types       (Status, hContentType, status200,
-                                           status400, status404)
-
-import qualified Data.ByteString.Lazy     as LBS
-
-import           Data.Either              (either)
-
-import           Data.Text                (Text)
-import           Data.Text.Encoding       (decodeUtf8)
-
-import           FirstApp.Types           (ContentType, Error, RqType,
-                                           mkCommentText, mkTopic,
-                                           renderContentType)
-
 -- --------------------------------------------
 -- - Don't start here, go to FirstApp.Types!  -
 -- --------------------------------------------
@@ -30,22 +24,22 @@ mkResponse
   -> ContentType
   -> LBS.ByteString
   -> Response
-mkResponse =
-  error "mkResponse not implemented"
+mkResponse s ct bs =
+  responseLBS s [(hContentType , renderContentType ct)] bs 
 
 resp200
   :: ContentType
   -> LBS.ByteString
   -> Response
-resp200 =
-  error "resp200 not implemented"
+resp200 ct bs =
+  responseLBS status200 [(hContentType , renderContentType ct)] bs
 
 resp404
   :: ContentType
   -> LBS.ByteString
   -> Response
-resp404 =
-  error "resp404 not implemented"
+resp404 ct bs =
+  responseLBS status404 [(hContentType , renderContentType ct)] bs
 
 resp400
   :: ContentType
@@ -60,8 +54,13 @@ mkAddRequest
   :: Text
   -> LBS.ByteString
   -> Either Error RqType
-mkAddRequest =
-  error "mkAddRequest not implemented"
+mkAddRequest t lbs = do
+  case mkTopic t of
+    Left e  -> Left e 
+    Right t -> do
+      case mkCommentText (lazyByteStringToStrictText lbs) of
+        Left e   -> Left e
+        Right ct -> Right $ AddRq t ct
   where
     -- This is a helper function to assist us in going from a Lazy ByteString, to a Strict Text
     lazyByteStringToStrictText =
