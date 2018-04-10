@@ -3,9 +3,9 @@ module FirstApp.Main (runApp) where
 
 import qualified Data.ByteString.Lazy as LBS
 import           Data.Either (either)
-import           Data.Text (Text)
-import           Data.Text.Encoding (decodeUtf8)
-import           FirstApp.Types           (ContentType , Error, RqType (..),
+import           Data.Text (Text, pack)
+import           Data.Text.Encoding (decodeUtf8, encodeUtf8)
+import           FirstApp.Types           (ContentType (..) , Error, RqType (..),
                                            mkCommentText, mkTopic,
                                            renderContentType)
 import           Network.HTTP.Types       (Status, hContentType, status200,
@@ -57,10 +57,10 @@ mkAddRequest
 mkAddRequest t lbs = do
   case mkTopic t of
     Left e  -> Left e 
-    Right t -> do
+    Right to -> do
       case mkCommentText (lazyByteStringToStrictText lbs) of
         Left e   -> Left e
-        Right ct -> Right $ AddRq t ct
+        Right ct -> Right $ AddRq to ct
   where
     -- This is a helper function to assist us in going from a Lazy ByteString, to a Strict Text
     lazyByteStringToStrictText =
@@ -73,20 +73,21 @@ mkAddRequest t lbs = do
 mkViewRequest
   :: Text
   -> Either Error RqType
-mkViewRequest =
-  error "mkViewRequest not implemented"
+mkViewRequest t =
+  case mkTopic t of
+    Left e  -> Left e 
+    Right to -> Right $ ViewRq to
 
 mkListRequest
   :: Either Error RqType
-mkListRequest =
-  error "mkListRequest not implemented"
+mkListRequest = Right ListRq
 
 mkErrorResponse
   :: Error
   -> Response
-mkErrorResponse =
-  error "mkErrorResponse not implemented"
-
+mkErrorResponse e =
+  responseLBS status404 [(hContentType , renderContentType PlainText)]
+    (LBS.fromStrict $ encodeUtf8 $ pack $ show e) 
 -- Use our ``RqType`` helpers to write a function that will take the input
 -- ``Request`` from the Wai library and turn it into something our application
 -- cares about.
