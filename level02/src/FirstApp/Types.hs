@@ -3,9 +3,9 @@
 module FirstApp.Types
   ( Topic
   , CommentText
-  , ContentType (..)
-  , RqType (..)
-  , Error (..)
+  , ContentType (PlainText, Json)
+  , RqType (AddRq, ViewRq, ListRq)
+  , Error (ErrorEmptyCommentText, ErrorEmptyTopic, ErrorInvalidPath)
   , mkTopic
   , getTopic
   , mkCommentText
@@ -63,7 +63,7 @@ data RqType = AddRq Topic CommentText | ViewRq Topic | ListRq
 -- useful to be able to be descriptive about what went wrong.
 
 -- Fill in the error constructors as you need them.
-data Error = ErrorEmptyTopic | ErrorEmptyCommentText deriving Show
+data Error = ErrorEmptyTopic | ErrorEmptyCommentText | ErrorInvalidPath Text deriving Show
 
 
 -- Provide the constructors for a sum type to specify the `ContentType` Header,
