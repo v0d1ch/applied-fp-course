@@ -1,25 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module FirstApp.Main (runApp, app) where
-
-import           Network.Wai              (Application, Request, Response,
-                                           pathInfo, requestMethod, responseLBS,
-                                           strictRequestBody)
-import           Network.Wai.Handler.Warp (run)
-
-import           Network.HTTP.Types       (Status, hContentType, status200,
-                                           status400, status404)
-
-import qualified Data.ByteString.Lazy     as LBS
-
-import           Data.Either              (either)
-
-import           Data.Text                (Text)
-import           Data.Text.Encoding       (decodeUtf8)
-
-import           FirstApp.Types           (ContentType (PlainText), Error (EmptyCommentText, EmptyTopic, UnknownRoute),
-                                           RqType (AddRq, ListRq, ViewRq),
-                                           mkCommentText, mkTopic,
-                                           renderContentType)
+import qualified Data.ByteString.Lazy as LBS
+import Data.Either (either)
+import Data.Text (Text)
+import Data.Text.Encoding (decodeUtf8)
+import FirstApp.Types (ContentType (PlainText), Error (EmptyCommentText, EmptyTopic, UnknownRoute),
+                       RqType (AddRq, ListRq, ViewRq), mkCommentText, mkTopic, renderContentType)
+import Network.HTTP.Types (Status, hContentType, status200, status400, status404)
+import Network.Wai (Application, Request, Response, pathInfo, requestMethod, responseLBS,
+                    strictRequestBody)
+import Network.Wai.Handler.Warp (run)
 
 runApp :: IO ()
 runApp = run 3000 app
