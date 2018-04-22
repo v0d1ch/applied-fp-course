@@ -43,8 +43,11 @@ main = do
       -- 1) The '<topic>/add' route will respond with an error when given an empty comment
       describe "Add route" $ do
         it "Should return an error if given an empty comment" $
-          post "foobar/add" "" `shouldRespondWith` "Empty Comment" {matchStatus = 400}
+          post "topic/add" "" `shouldRespondWith` "Empty Comment" {matchStatus = 400}
       -- 2) The '<topic>/view' route will respond correctly when given a topic
+      describe "view route" $ do
+        it "The '<topic>/view' route will respond correctly when given a topic" $
+          get "topic/view?haskell"  `shouldRespondWith` "View Request not implemented" {matchStatus = 200}
       -- 3) The '<topic>/view' route will respond with an error when given an empty topic
       -- 4) A gibberish route will return a 404
 
