@@ -30,15 +30,17 @@ import qualified Data.Aeson.Types           as A
 
 import           Data.Time                  (UTCTime)
 
-import           FirstApp.DB.Types          (DBComment)
+import           FirstApp.DB.Types          (DBComment (DBComment))
 import           FirstApp.Types.CommentText (CommentText, mkCommentText
                                             , getCommentText)
 import           FirstApp.Types.Error       (Error( UnknownRoute
                                                   , EmptyCommentText
                                                   , EmptyTopic
+                                                  , DBError
                                                   )
                                             )
 import           FirstApp.Types.Topic       (Topic, mkTopic, getTopic)
+import           Data.Char (toLower)
 
 -- This is the `Comment` record that we will be sending to users, it's a simple
 -- record type, containing an `Int`, `Topic`, `CommentText`, and `UTCTime`.
@@ -71,8 +73,11 @@ data Comment = Comment
 modFieldLabel
   :: String
   -> String
-modFieldLabel =
-  error "modFieldLabel not implemented"
+modFieldLabel s =
+  lowerIt (fromMaybe "" (stripPrefix "comment" s))
+  where
+    lowerIt "" = ""
+    lowerIt (x:xs) = toLower x : xs 
 
 instance ToJSON Comment where
   -- This is one place where we can take advantage of our `Generic` instance.
@@ -87,7 +92,7 @@ instance ToJSON Comment where
       -- rest of the name. This accepts any 'String -> String' function but it's
       -- wise to keep the modifications simple.
       opts = A.defaultOptions
-             { A.fieldLabelModifier = modFieldLabel
+             { A.fieldLabelModifier = modFieldLabel 
              }
 
 -- For safety we take our stored `DbComment` and try to construct a `Comment`
@@ -97,8 +102,8 @@ instance ToJSON Comment where
 fromDbComment
   :: DBComment
   -> Either Error Comment
-fromDbComment =
-  error "fromDbComment not yet implemented"
+fromDbComment (DBComment id' topic body time) = 
+  Comment <$> (Right $ CommentId id') <*> (mkTopic topic) <*> (mkCommentText body) <*> Right time 
 
 data RqType
   = AddRq Topic CommentText

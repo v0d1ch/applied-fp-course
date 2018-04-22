@@ -8,6 +8,7 @@ data Error
   = UnknownRoute
   | EmptyCommentText
   | EmptyTopic
+  | DBError
   -- We need another constructor for our DB error types.
   deriving (Eq, Show)
 

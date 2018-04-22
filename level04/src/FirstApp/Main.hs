@@ -31,11 +31,11 @@ import           Data.Aeson                         (ToJSON)
 import qualified Data.Aeson                         as A
 
 import           Database.SQLite.SimpleErrors.Types (SQLiteResponse)
-
-import           FirstApp.Conf                      (Conf, firstAppConfig)
+import           Database.SQLite.Simple (open, execute)
+import           FirstApp.Conf                      (Conf(dbFilePath), firstAppConfig)
 import qualified FirstApp.DB                        as DB
 import           FirstApp.Types                     (ContentType (JSON, PlainText),
-                                                     Error (EmptyCommentText, EmptyTopic, UnknownRoute),
+                                                     Error (EmptyCommentText, EmptyTopic, UnknownRoute, DBError),
                                                      RqType (AddRq, ListRq, ViewRq),
                                                      mkCommentText, mkTopic,
                                                      renderContentType)
@@ -48,7 +48,9 @@ data StartUpError
   deriving Show
 
 runApp :: IO ()
-runApp = error "runApp needs re-implementing"
+runApp = error "prepareAppReqs"
+--   conn <- open $ dbFilePath firstAppConfig
+--   return ()
 
 -- We need to complete the following steps to prepare our app requirements:
 --
@@ -60,8 +62,7 @@ runApp = error "runApp needs re-implementing"
 --
 prepareAppReqs
   :: IO ( Either StartUpError DB.FirstAppDB )
-prepareAppReqs =
-  error "prepareAppReqs not implemented"
+prepareAppReqs = error "meh"
 
 -- | Some helper functions to make our lives a little more DRY.
 mkResponse
@@ -178,3 +179,5 @@ mkErrorResponse EmptyCommentText =
   resp400 PlainText "Empty Comment"
 mkErrorResponse EmptyTopic =
   resp400 PlainText "Empty Topic"
+mkErrorResponse DBError =
+  resp400 PlainText "Database error"
