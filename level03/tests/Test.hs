@@ -46,8 +46,13 @@ main = do
           post "topic/add" "" `shouldRespondWith` "Empty Comment" {matchStatus = 400}
       -- 2) The '<topic>/view' route will respond correctly when given a topic
       describe "view route" $ do
-        it "The '<topic>/view' route will respond correctly when given a topic" $
-          get "topic/view?haskell"  `shouldRespondWith` "View Request not implemented" {matchStatus = 200}
+        it "The 'topic/view' route will respond correctly when given a topic" $
+          get "topic/view"  `shouldRespondWith` "View Request not implemented" {matchStatus = 200}
       -- 3) The '<topic>/view' route will respond with an error when given an empty topic
+      describe "error view route" $ do
+        it "The 'topic/view' route will respond with an error when given an empty topic" $
+          get "/view"  `shouldRespondWith` "Unknown Route" {matchStatus = 404}
       -- 4) A gibberish route will return a 404
-
+      describe "A gibberish route will return a 404" $ do
+        it "The 'gibberish/route' route will respond with an error when given an empty topic" $
+          get "gibberish/route"  `shouldRespondWith` "Unknown Route" {matchStatus = 404}
