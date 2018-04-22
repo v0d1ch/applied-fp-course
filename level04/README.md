@@ -40,6 +40,7 @@ element. This is its type:
 
 ```haskell
 traverse :: (Applicative f, Traversable t) => (a -> f b) -> t a -> f (t b)
+traverse :: (Applicative Either e, Traversable []) => (a -> Either e b) -> [a] -> Either e ([b])
 ```
 
 This is very useful when you want to perform an action on every element of a
@@ -48,7 +49,7 @@ context.
 
 To help build some intuition for how this function can be useful, write out
 the type signature for ``traverse``, but replace the ``f`` with ``Either e``,
-and the ``t`` with ``[]``. This type of exercise is useful to help build your
+and the ``[]`` with ``[]``. This type of exercise is useful to help build your
 understanding of how the pieces fit together for generic functions such as
 this one.
 
