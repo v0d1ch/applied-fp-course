@@ -74,10 +74,7 @@ modFieldLabel
   :: String
   -> String
 modFieldLabel s =
-  lowerIt (fromMaybe "" (stripPrefix "comment" s))
-  where
-    lowerIt "" = ""
-    lowerIt (x:xs) = toLower x : xs 
+  map toLower (fromMaybe s (stripPrefix "comment" s))
 
 instance ToJSON Comment where
   -- This is one place where we can take advantage of our `Generic` instance.
@@ -92,7 +89,7 @@ instance ToJSON Comment where
       -- rest of the name. This accepts any 'String -> String' function but it's
       -- wise to keep the modifications simple.
       opts = A.defaultOptions
-             { A.fieldLabelModifier = modFieldLabel 
+             { A.fieldLabelModifier = modFieldLabel
              }
 
 -- For safety we take our stored `DbComment` and try to construct a `Comment`
@@ -102,8 +99,8 @@ instance ToJSON Comment where
 fromDbComment
   :: DBComment
   -> Either Error Comment
-fromDbComment (DBComment id' topic body time) = 
-  Comment <$> (Right $ CommentId id') <*> (mkTopic topic) <*> (mkCommentText body) <*> Right time 
+fromDbComment (DBComment id' topic body time) =
+  Comment <$> (Right $ CommentId id') <*> (mkTopic topic) <*> (mkCommentText body) <*> Right time
 
 data RqType
   = AddRq Topic CommentText

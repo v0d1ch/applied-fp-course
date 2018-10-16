@@ -48,9 +48,11 @@ data StartUpError
   deriving Show
 
 runApp :: IO ()
-runApp = error "prepareAppReqs"
---   conn <- open $ dbFilePath firstAppConfig
---   return ()
+runApp = do
+  fad <- prepareAppReqs
+  case fad of
+    Left _ -> return ()
+    Right a -> run 6000 $ app a
 
 -- We need to complete the following steps to prepare our app requirements:
 --
@@ -62,7 +64,13 @@ runApp = error "prepareAppReqs"
 --
 prepareAppReqs
   :: IO ( Either StartUpError DB.FirstAppDB )
-prepareAppReqs = error "meh"
+prepareAppReqs = do
+  let fa = dbFilePath firstAppConfig
+  start <- DB.initDB fa
+  case start of
+    Left e -> return $ Left $ DbInitErr e
+    Right a ->  return $ Right a
+
 
 -- | Some helper functions to make our lives a little more DRY.
 mkResponse
@@ -130,12 +138,13 @@ handleRequest
   :: DB.FirstAppDB
   -> RqType
   -> IO (Either Error Response)
-handleRequest _db (AddRq _ _) =
-  (resp200 PlainText "Success" <$) <$> error "AddRq handler not implemented"
-handleRequest _db (ViewRq _)  =
-  error "ViewRq handler not implemented"
+handleRequest _db (AddRq t c) =
+  (resp200 PlainText "Success" <$) <$> DB.addCommentToTopic _db t c
+handleRequest _db (ViewRq t)  =
+  (resp200 PlainText "Success" <$) <$> DB.getComments _db t
 handleRequest _db ListRq      =
   error "ListRq handler not implemented"
+  -- (resp200 PlainText "Success" <$) <$> DB.getTopics _db
 
 mkRequest
   :: Request

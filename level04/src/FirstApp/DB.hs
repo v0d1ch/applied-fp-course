@@ -103,8 +103,6 @@ addCommentToTopic a t c = do
     Left _  -> return $ Left DBError
     Right r -> return $ Right ()
 
-
-
 getTopics
   :: FirstAppDB
   -> IO (Either Error [Topic])
@@ -126,5 +124,5 @@ deleteTopic a t = do
     topic = getTopic t
   res <- (Sql.runDBAction $ Sql.execute conn sql (Sql.Only topic)) :: IO (Either SQLiteResponse ())
   case res of
-    Left _ -> return $ Left DBError 
+    Left _ -> return $ Left DBError
     Right _ -> return $ Right ()
